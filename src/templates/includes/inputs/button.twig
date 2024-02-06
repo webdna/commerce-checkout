@@ -1,0 +1,13 @@
+<button {% if id ?? null %}id="{{ id }}"{% endif %} x-ref="submit" type="submit" class="group relative flex items-center rounded-md bg-brand {{ parseEnv(buttonText) ? 'text-white' : 'text-black' }} px-6 py-3 font-medium hover:bg-black hover:text-white focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 focus:ring-offset-gray-50 overflow-hidden disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed duration-100 {{ classes ?? null }}" x-on:click="$el.dataset.processing = true;" {% if data ?? null %}{{ data|map((v, k) => 'data-'~k~'='~v)|join(' ') }}{% endif %}>
+	{{ label ?? 'Continue' }}
+	{% if icon ?? null %}
+		{{ include("checkout/includes/icons/#{icon}") }}
+	{% endif %}
+	
+	<div class="absolute inset-0 items-center justify-center bg-brand hidden group-data-[processing=true]:flex group-data-[loading=true]:flex group-data-[loading=true]:bg-gray-100">
+		<svg class="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+		  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+		  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+		</svg>
+	</div>
+</button>

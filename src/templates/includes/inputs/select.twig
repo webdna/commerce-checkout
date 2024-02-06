@@ -1,0 +1,16 @@
+{% set fieldName = (name)|namespaceInputName(namespace ?? null) %}
+{% set id = (id ?? name)|namespaceInputId(namespace ?? null) %}
+
+<div>
+	<div class="relative">
+		  <select id="{{ id }}" name="{{ fieldName }}" data-selected="{{ value ?? null }}" class="peer block w-full bg-white rounded-md border-0 pb-1.5 pt-5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6 placeholder:text-transparent aria-[invalid=true]:ring-red-500" {{ required ?? false ? 'required' }} {% for attr in (attrs ?? []) %}{{ attr|raw }}{% endfor %}>
+			{% for option in (options ?? []) %}
+				<option value="{{ option.value }}" {{ option.value == (value ?? null) ? 'selected' }}>{{ option.label }}</option>
+			{% endfor %}
+		  </select>
+		  
+		  <label for="{{ id }}" class="pointer-events-none absolute left-0 right-0 px-3 top-2 block text-xs text-gray-600 peer-placeholder-shown:text-base peer-placeholder-shown:top-3 peer-focus:text-xs peer-focus:top-2 duration-200 ease-in-out">{{ label ?? name }}</label>
+		  
+	</div>
+	<p class="mt-1 text-sm text-red-600" id="error-msg-{{ fieldName }}" hidden>{{ error ?? 'Required' }}</p>
+</div>

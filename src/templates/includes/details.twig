@@ -1,0 +1,26 @@
+<div class="rounded-md border px-3 divide-y border-gray-300 divide-gray-300 text-sm mb-12">
+	
+	<div class="flex gap-6 items-start py-3">
+		<div class="text-gray-500 w-16">Contact</div>
+		<div class="flex-1">{{ cart.email }}</div>
+		<div class="text-xs pt-0.5"><a href="{{ siteUrl('checkout') }}">Change</a></div>
+	</div>
+	<div class="flex gap-6 items-start py-3">
+		<div class="text-gray-500 w-16">Ship to</div>
+		<div class="flex-1">{{ cart.shippingAddress|address({html:false})|split('\n')|join(', ') }}</div>
+		<div class="text-xs pt-0.5"><a href="{{ siteUrl('checkout') }}">Change</a></div>
+	</div>
+	<div class="flex gap-6 items-start py-3">
+		<div class="text-gray-500 w-16">Bill to</div>
+		<div class="flex-1">{% if cart.isBillingSameAsShipping %}Same as shipping address{% else %}{{ cart.billingAddress|address({html:false})|split('\n')|join(', ') }}{% endif %}</div>
+		<div class="text-xs pt-0.5"><a href="{{ siteUrl('checkout') }}">Change</a></div>
+	</div>
+	{% if step == 'payment' %}
+	<div class="flex gap-6 items-start py-3">
+		<div class="text-gray-500 w-16">Shipping</div>
+		<div class="flex-1">{{ cart.shippingMethodName }} - {{ cart.totalShippingCost > 0 ? cart.totalShippingCostAsCurrency : 'FREE' }}</div>
+		<div class="text-xs pt-0.5"><a href="{{ siteUrl('checkout/shipping') }}">Change</a></div>
+	</div>
+	{% endif %}
+	
+</div>

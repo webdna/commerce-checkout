@@ -1,0 +1,105 @@
+{% extends "checkout/_layout" %}
+
+{% set step = 'confirmation' %}
+{% set notification = notifications.orderConfirmationNotification ?? null %}
+
+{% block content %}
+		
+		{% set number = craft.app.request.getRequiredParam('number') %}
+		{% set order = craft.orders().number(number).one() %}
+		
+		<div class="mb-10">
+			<p class="text-base font-medium text-brand">Thank you {{ order.customer.firstName }}!</p>
+			  <h1 class="mt-2 text-4xl font-bold">Order Confirmation</h1>
+			  <p class="mt-2 text-base text-gray-500">Your order <span class="text-gray-900">#{{ order.reference }}</span> has been received.</p>
+		</div>
+		
+
+		
+			<div class="mb-10">
+				<p class="mt-2 text-2xl font-medium">Thank you for choosing {{ order.orderSite.name }}.</p>
+			  	<p class="mt-2 text-base text-gray-500">We will send you a shipping confirmation with tracking information once your order ships. If you have any questions or need assistance, please contact our customer support at <a href="tel:+{{ parseEnv(supportPhone)|replace('-','') }}">{{ parseEnv(supportPhone) }}</a>.</p>
+			</div>
+			
+			{% set fulfillment = order.lastFulfillment %}
+			{% if fulfillment %}
+				{% set carrier = fulfillment.getTrackingCarrier() %}
+				<p class="mb-10">
+					{{ carrier.getName() }} Tracking #<strong><a href="{{ carrier.getTrackingUrl }}">{{ carrier.trackingNumber }}</a>
+				</p>
+			{% endif %}
+			
+			<div class="mb-10 grid grid-cols-3 gap-6 text-sm text-gray-500">
+				<div class="">
+					<h4 class="text-gray-900 font-medium mb-1">Shipping Address</h4>
+					{{ order.shippingAddress|address }}
+				</div>
+				<div class="">
+					<h4 class="text-gray-900 font-medium mb-1">Billing Address</h4>
+					{{ order.billingAddress|address }}
+				</div>
+				<div class="">
+					<h4 class="text-gray-900 font-medium mb-1">Shipping Method</h4>
+					{{ order.shippingMethodName }}
+				</div>
+			</div>
+			
+			<div class="mb-10 aspect-[16/9] *:h-full">
+				{% set address = googleMaps.lookup(order.shippingAddress|address({html:false})|split('\n')|join(', ')).one() %}
+				{% set queryOptions = {
+					'id': 'deliveryAddressMap',
+					'infoWindowTemplate': 'checkout/includes/map-info'
+				} %}
+				{% set map = googleMaps.map(address, queryOptions) %}
+				
+				{{ map.fit().tag({'callback': 'initMap'}) }}
+				
+				{% js %}
+					var map;
+					
+					function initMap() {
+						map = googleMaps.getMap('deliveryAddressMap').openInfoWindow('*'); // Open all info windows
+					}
+				{% endjs %}
+			</div>
+		
+
+			<form method="post" action="" class="mb-10 py-10 border-y" x-data x-validate @submit="$validate.submit; if(!$validate.isComplete($el)){delete $refs.submit.dataset.processing}" >
+			{{ csrfInput() }}
+			{{ actionInput('users/save-user') }}
+			{{ redirectInput('shop/customer') }}
+			{{ input('hidden', 'email', order.email) }}
+			{{ input('hidden', 'firstName', order.shippingAddress.firstName) }}
+			{{ input('hidden', 'lastName', order.shippingAddress.lastName) }}
+				
+				<fieldset class="grid grid-cols-2 gap-6">
+					<legend class="text-2xl font-medium col-span-2 mb-3">Create Account</legend>
+					<div>
+						<p class="text-gray-500">Want a faster checkout experience next time? Why not create an account, simply enter a password and thats it.</p>
+					</div>
+					
+					<div class="grid gap-3">
+						{{ include('checkout/includes/inputs/text', {
+							name: 'password',
+							label: 'Password',
+							required: true,
+						}) }}
+						
+						<div class="flex justify-end">
+						{{ include("checkout/includes/inputs/button", {label:'Create Account'}) }}
+						</div>
+					</div>
+
+				</fieldset>
+			</form>
+		
+		
+				<div class="flex items-center justify-center">
+					<a href="{{ siteUrl }}" class="group relative flex items-center rounded-md bg-gray-200 px-6 py-3 font-medium text-gray-600 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-50 overflow-hidden disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed">
+						Return to site
+						
+						{{ include("checkout/includes/icons/arrow-right") }}
+					</a>
+				</div>
+				
+{% endblock %}

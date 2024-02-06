@@ -1,0 +1,16 @@
+{% set fieldName = (name)|namespaceInputName(namespace ?? null) %}
+{% set id = (id ?? name)|namespaceInputId(namespace ?? null) %}
+
+<div>
+	<div class="relative flex items-start">
+  	<div class="flex h-6 items-center">
+		<input id="{{ id }}" name="{{ fieldName }}" {{ (checked ?? null) ? 'checked' }} type="checkbox" class="h-4 w-4 rounded border-gray-300 text-brand focus:ring-brand" {{ required ?? false ? 'required' }} {% for attr in (attrs ?? []) %}{{ attr|raw }}{% endfor %}>
+  	</div>
+  	<div class="ml-3 text-sm leading-6">
+		<label for="{{ id }}" class="text-gray-900">{{ label ?? name }}</label>
+  	</div>
+	</div>
+	{% if error ?? null %}
+	<p class="mt-2 text-sm text-red-600" id="{{ id }}-error">{{ error }}</p>
+	{% endif %}
+</div>

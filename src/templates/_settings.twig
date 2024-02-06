@@ -1,0 +1,81 @@
+{# @var plugin \webdna\commerce\checkout\Checkout #}
+{# @var settings \webdna\commerce\checkout\models\Settings #}
+
+{% import '_includes/forms.twig' as forms %}
+
+{{ forms.autosuggestField({
+	label: 'Base Url'|t,
+	instructions: 'The base url for the checkout',
+	id: 'baseUrl',
+	class: 'ltr',
+	name: 'baseUrl',
+	value: settings.baseUrl,
+	errors: settings.getErrors('baseUrl'),
+	suggestEnvVars: true,
+	required: true,
+}) }}
+
+{{ forms.autosuggestField({
+	label: 'Cart Url'|t,
+	id: 'cartUrl',
+	class: 'ltr',
+	name: 'cartUrl',
+	value: settings.cartUrl,
+	errors: settings.getErrors('cartUrl'),
+	suggestEnvVars: true,
+	required: true,
+}) }}
+
+{{ forms.autosuggestField({
+	label: 'Logo Url'|t,
+	id: 'logoUrl',
+	class: 'ltr',
+	name: 'logoUrl',
+	value: settings.logoUrl,
+	errors: settings.getErrors('logoUrl'),
+	suggestEnvVars: true,
+	required: true,
+}) }}
+
+{{ forms.color({
+	label: 'Brand Color'|t,
+	id: 'brandColor',
+	class: 'ltr',
+	name: 'brandColor',
+	value: settings.brandColor,
+	errors: settings.getErrors('brandColor'),
+	suggestEnvVars: true,
+	required: true,
+}) }}
+
+{{ forms.booleanMenuField({
+	label: 'Button text light'|t,
+	id: 'buttonText',
+	class: 'ltr',
+	name: 'buttonText',
+	value: settings.buttonText,
+	errors: settings.getErrors('buttonText'),
+	suggestEnvVars: true,
+}) }}
+
+{{ forms.autosuggestField({
+	label: 'Customer Support Phone Number'|t,
+	id: 'supportPhone',
+	class: 'ltr',
+	name: 'supportPhone',
+	value: settings.supportPhone,
+	errors: settings.getErrors('supportPhone'),
+	suggestEnvVars: true,
+	required: true,
+}) }}
+
+{{ forms.elementSelectField({
+	id: 'policies',
+	label: 'Policies'|t('app'),
+	name: 'policies',
+	elements: settings.policies ? craft.entries.id(settings.policies).fixedOrder(true).all() : null,
+	elementType: 'craft\\elements\\Entry',
+	limit: null,
+	errors: settings.getErrors('policies'),
+	required: true,
+}) }}

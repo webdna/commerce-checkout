@@ -1,0 +1,126 @@
+
+<div class="grid gap-3">
+	<div class="grid grid-cols-2 gap-3">
+		{{ include('checkout/includes/inputs/text', {
+			name: 'firstName',
+			namespace: namespace,
+			label: 'Firstname',
+			value: cart[namespace].firstName ?? null,
+			required: true,
+			attrs: attrs ?? null,
+		}) }}
+		
+		{{ include('checkout/includes/inputs/text', {
+			name: 'lastName',
+			namespace: namespace,
+			label: 'Lastname',
+			value: cart[namespace].lastName ?? null,
+			required: true,
+			attrs: attrs ?? null,
+		}) }}
+	</div>
+	
+	<div class="grid grid-cols-1 gap-3">
+		{{ include('checkout/includes/inputs/text', {
+			name: 'phoneNumber',
+			namespace: namespace~'[fields]',
+			label: 'phone',
+			value: cart[namespace].phoneNumber ?? null,
+			required: true,
+			attrs: attrs ?? null,
+			tip: 'In case we need to contact you.'
+		}) }}
+	</div>
+	
+	<hr class="my-2">
+	
+	<div class="grid grid-cols-1 gap-3">
+		{% set countries = craft.commerce.store.store.getCountriesList() %}
+		{% set countryCode = cart[namespace].countryCode ?? 'US' %}
+		  
+		{{ include('checkout/includes/inputs/select', {
+			name: 'countryCode',
+			namespace: namespace,
+			label: 'Country',
+			value: countryCode,
+			options: countries|map((v, k) => {value:k, label:v}),
+			required: true,
+			attrs: attrs ?? null,
+		}) }}
+	</div>
+	
+	<div class="grid grid-cols-1 gap-3">
+		{{ include('checkout/includes/inputs/text', {
+			name: 'addressLine1',
+			namespace: namespace,
+			label: 'Address line 1',
+			value: cart[namespace].addressLine1 ?? null,
+			required: true,
+			attrs: attrs ?? null,
+		}) }}
+	</div>
+	
+	<div class="grid grid-cols-2 gap-3">
+		{{ include('checkout/includes/inputs/text', {
+			name: 'addressLine2',
+			namespace: namespace,
+			label: 'Address line 2',
+			value: cart[namespace].addressLine2 ?? null,
+			required: false,
+		}) }}
+		
+		{{ include('checkout/includes/inputs/text', {
+			name: 'locality',
+			namespace: namespace,
+			label: 'City',
+			value: cart[namespace].locality ?? null,
+			required: true,
+			attrs: attrs ?? null,
+		}) }}
+	</div>
+	
+	<div class="grid grid-cols-2 gap-3">
+		{% set administrativeAreas = craft.commerce.store.getStore().getAdministrativeAreasListByCountryCode() %}
+		
+		{{ include('checkout/includes/inputs/select', {
+			name: 'administrativeArea',
+			namespace: namespace,
+			label: 'State',
+			value: cart[namespace].administrativeArea ?? null,
+			options: [],
+			required: true,
+			attrs: attrs ?? null,
+		}) }}
+		
+		{{ include('checkout/includes/inputs/text', {
+			name: 'postalCode',
+			namespace: namespace,
+			label: 'Postal Code',
+			value: cart[namespace].postalCode ?? null,
+			required: true,
+			attrs: attrs ?? null,
+		}) }}
+	</div>
+</div>
+
+{% js %}
+document.querySelector('select#{{ 'countryCode'|namespaceInputId(namespace) }}').addEventListener('change', ev => {
+  const countryCode = ev.target.value;
+  const stateSelect = document.querySelector('select#{{ 'administrativeArea'|namespaceInputId(namespace) }}');
+  const states = {{ administrativeAreas|json_encode|raw }}
+
+  if (states[countryCode] && Object.keys(states[countryCode]).length) {
+	stateSelect.parentElement.parentElement.classList.remove('hidden');
+	stateSelect.innerHTML = '<option value="">Select state...</option>';
+	for (const key in states[countryCode]) {
+	  let selected = (key == stateSelect.dataset.selected) ? 'selected' : '';
+	  stateSelect.innerHTML += `<option value="${key}" ${selected}>${states[countryCode][key]}</option>`;
+	}
+  } else {
+	stateSelect.parentElement.parentElement.classList.add('hidden');
+	stateSelect.removeAttribute('name');
+  }
+});
+
+document.querySelector('select#{{ 'countryCode'|namespaceInputId(namespace) }}').dispatchEvent(new Event('change'));
+{% endjs %}

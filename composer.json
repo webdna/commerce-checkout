@@ -1,0 +1,40 @@
+{
+    "name": "webdna/commerce-checkout",
+    "description": "checkout flow for commerce",
+    "type": "craft-plugin",
+    "license": "proprietary",
+    "support": {
+        "email": "info@webdna.co.uk",
+        "issues": "https://github.com/webdna/commerce-checkout/issues?state=open",
+        "source": "https://github.com/webdna/commerce-checkout",
+        "docs": "https://github.com/webdna/commerce-checkout",
+        "rss": "https://github.com/webdna/commerce-checkout/releases.atom"
+    },
+    "require": {
+        "php": ">=8.0.2",
+        "craftcms/cms": "^4.5.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "webdna\\commerce\\checkout\\": "src/"
+        }
+    },
+    "extra": {
+        "handle": "checkout",
+        "name": "Checkout",
+        "developer": "webdna",
+        "documentationUrl": "https://github.com/webdna/commerce-checkout",
+        "class": "webdna\\commerce\\checkout\\Checkout"
+    },
+    "config": {
+        "sort-packages": true,
+        "platform": {
+            "php": "8.0.2"
+        },
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true,
+            "craftcms/plugin-installer": true
+        }
+    }
+}
+

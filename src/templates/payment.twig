@@ -1,0 +1,121 @@
+{% extends "checkout/_layout" %}
+
+{% set step = 'payment' %}
+
+{% block content %}
+		
+				{{ include('checkout/includes/details') }}
+				
+				
+				<fieldset class="mb-8">
+					<div class="">
+						<legend class="text-lg">Payment</legend>
+						<p class="text-sm text-gray-600">All transactions are secure and encrypted.</p>
+					</div>
+					
+					<div class="mt-4 grid gap-3">
+						
+						<form id="payment-method-braintree" class="relative" method="POST">
+							{% set gateway = craft.commerce.gateways.getGatewayByHandle('braintree') %}
+							{{ csrfInput() }}
+							{{ actionInput('commerce/payments/pay') }}
+							{{ redirectInput(siteUrl(parseEnv(baseUrl)~'/confirmation', {
+								number: cart.number,
+								success: 'true'
+							})) }}
+							<input type="hidden" name="gatewayId" value="{{ gateway.id }}" />
+							
+							<div class="mb-3">
+								{% js %}
+								function processPaymentForm(e) {
+									console.log('process payment')
+									let payBtn = document.getElementById('pay');
+									payBtn.disabled = true;
+									payBtn.dataset.processing = true;
+								}
+								{% endjs %}
+								{% set params = {
+									callbacks: {
+										onPaymentMethodReady: "function(){
+											console.log('on payment ready')
+											document.getElementById('select-payment').classList.add('hidden');
+											document.getElementById('pay').classList.remove('hidden');
+											document.getElementById('payment-method-braintree').addEventListener('submit', processPaymentForm);
+										}",
+										onPaymentMethodSelect: "function(){
+											document.getElementById('select-payment').classList.remove('hidden');
+											document.getElementById('select-payment').dataset.processing = false;
+											document.getElementById('pay').classList.add('hidden');
+											document.getElementById('pay').disabled = false;
+											document.getElementById('pay').dataset.loading = false;
+											document.getElementById('payment-method-braintree').removeEventListener('submit', processPaymentForm);
+										}"
+									}
+								} %}
+								{% namespace gateway.handle|commercePaymentFormNamespace %}
+									{{ gateway.getPaymentFormHtml(params)|raw }}
+								{% endnamespace %}
+								
+								<div class="mt-4 flex justify-end">
+									{{ include("checkout/includes/inputs/button", {icon:"arrow-right", id:"select-payment", label:"Select Payment", data:{manual:'true', loading:'loading...'}}) }}
+									{{ include("checkout/includes/inputs/button", {icon:"arrow-right", id:"pay", label:"Place Order", classes:'hidden', data:{manual:'true', loading:'loading...'}}) }}
+								</div>
+							</div>
+						</form>
+						
+						<div class="relative my-4">
+						  <div class="absolute inset-0 flex items-center" aria-hidden="true">
+							<div class="w-full border-t border-gray-200"></div>
+						  </div>
+						  <div class="relative flex justify-center">
+							<span class="bg-white px-4 text-sm font-medium text-gray-500">or</span>
+						  </div>
+						</div>
+						
+						<form id="payment-method-affirm" class="relative" method="POST">
+							{% set gateway = craft.commerce.gateways.getGatewayByHandle('affirm') %}
+							{{ csrfInput() }}
+							{{ actionInput('commerce/payments/pay') }}
+							{{ redirectInput(parseEnv(baseUrl)~'/confirmation') }}
+							<input type="hidden" name="gatewayId" value="{{ gateway.id }}" />
+							
+							
+							
+							<div class="my-3 flex justify-center">
+								<small class="affirm-as-low-as" data-page-type="cart" data-amount="{{ cart.total*100 }}"></small>
+							</div>
+							
+							<div class="my-3 flex justify-center">
+								{% set params = {
+									automatic: false,
+									button: false,
+									cancelUrl: siteUrl(parseEnv(baseUrl)~'/payment'),
+									confirmationUrl: siteUrl(parseEnv(baseUrl)~'/confirmation', {number: cart.number}),
+									mode: 'modal',
+								} %}
+								{% namespace gateway.handle|commercePaymentFormNamespace %}
+									<div class="flex">
+									<div data-id="affirm-proceed" class="cursor-pointer">
+										<svg class="h-12" viewBox="0 0 127 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path d="M123.568 0H3.43243C1.53675 0 0 1.79086 0 4V26C0 28.2091 1.53675 30 3.43243 30H123.568C125.463 30 127 28.2091 127 26V4C127 1.79086 125.463 0 123.568 0Z" fill="#000000"/>
+										<path d="M31.3142 25.5V4.5" stroke="white" stroke-opacity="0.632416" stroke-width="0.25" stroke-linecap="square"/>
+										<path d="M41.6345 16.8049C43.5845 16.8049 44.8745 15.7549 44.8745 13.8049C44.8745 11.8399 43.5845 10.7899 41.6345 10.7899H37.8845V19.9999H39.7895V16.8049H41.6345ZM42.9845 13.8049C42.9845 14.5999 42.5045 15.1699 41.5145 15.1699H39.7895V12.4249H41.5145C42.5045 12.4249 42.9845 12.9799 42.9845 13.8049ZM51.3126 19.9999V15.7249C51.3126 14.1199 50.2776 13.1449 48.4926 13.1449C46.9626 13.1449 45.8676 14.0749 45.6726 15.2899H47.4426C47.5926 14.8999 47.9076 14.6599 48.4326 14.6599C49.1826 14.6599 49.5276 15.1249 49.5276 15.6949V16.1899C49.2576 15.9949 48.5826 15.7999 47.9976 15.7999C46.5426 15.7999 45.4026 16.6699 45.4026 17.9449C45.4026 19.3399 46.5426 20.1199 47.8926 20.1199C48.6276 20.1199 49.3026 19.8649 49.5276 19.6399V19.9999H51.3126ZM49.5276 18.1699C49.3626 18.5299 48.8526 18.7549 48.3126 18.7549C47.7276 18.7549 47.1276 18.5149 47.1276 17.9299C47.1276 17.3599 47.7276 17.1049 48.3126 17.1049C48.8526 17.1049 49.3626 17.3299 49.5276 17.6899V18.1699ZM55.4388 22.4749L58.9338 13.2949H57.0588L55.5288 17.7499L53.9838 13.2949H52.0188L54.5838 20.0299L53.6088 22.4749H55.4388ZM69.272 16.6549C69.272 14.5849 67.937 13.1449 65.987 13.1449C64.037 13.1449 62.702 14.5849 62.702 16.6549C62.702 18.7099 64.037 20.1499 65.987 20.1499C67.937 20.1499 69.272 18.7099 69.272 16.6549ZM67.427 16.6549C67.427 17.7649 66.917 18.5749 65.987 18.5749C65.057 18.5749 64.547 17.7649 64.547 16.6549C64.547 15.5299 65.057 14.7199 65.987 14.7199C66.917 14.7199 67.427 15.5299 67.427 16.6549ZM73.9758 19.9999L76.5258 13.2949H74.6508L73.1358 17.7499L71.5908 13.2949H69.6408L72.1758 19.9999H73.9758ZM81.411 17.8099C81.261 18.3799 80.796 18.6499 80.166 18.6499C79.341 18.6499 78.771 18.0499 78.711 17.0449H83.181V16.4749C83.181 14.5099 82.101 13.1449 80.136 13.1449C78.261 13.1449 76.911 14.6299 76.911 16.6549C76.911 18.7249 78.216 20.1499 80.166 20.1499C81.846 20.1499 82.896 19.2349 83.136 17.8099H81.411ZM80.151 14.6599C80.916 14.6599 81.336 15.2149 81.351 15.9199H78.756C78.921 15.0949 79.431 14.6599 80.151 14.6599ZM88.4273 13.2649C88.3223 13.2049 88.0373 13.1449 87.7223 13.1449C87.0623 13.1449 86.5073 13.4749 86.2223 13.9549V13.2949H84.3623V19.9999H86.2223V15.8449C86.3573 15.2299 86.8673 14.8999 87.4973 14.8999C87.8423 14.8999 88.1723 14.9749 88.4273 15.1249V13.2649ZM93.2048 17.9749C93.2048 19.4599 94.0598 20.1349 95.4248 20.1349C95.9198 20.1349 96.3698 20.0599 96.6248 19.9249V18.2749C96.4148 18.4099 96.0998 18.4999 95.8148 18.4999C95.3348 18.4999 95.0498 18.2599 95.0498 17.7349V14.7949H96.5198V13.2949H95.0498V11.4799H93.2048V13.2949H92.1848V14.7949H93.2048V17.9749ZM99.8307 13.2949H97.9707V19.9999H99.8307V13.2949ZM99.9957 11.3599C99.9957 10.7449 99.4857 10.2949 98.9007 10.2949C98.3007 10.2949 97.7907 10.7449 97.7907 11.3599C97.7907 11.9899 98.3007 12.4249 98.9007 12.4249C99.4857 12.4249 99.9957 11.9899 99.9957 11.3599ZM106.812 13.9999C106.437 13.5049 105.807 13.1449 105.012 13.1449C104.262 13.1449 103.647 13.4299 103.317 13.8499V13.2949H101.457V19.9999H103.317V15.6799C103.437 15.1099 103.887 14.8099 104.367 14.8099C105.012 14.8099 105.312 15.2899 105.312 16.0099V19.9999H107.187V15.6799C107.307 15.1099 107.742 14.8099 108.222 14.8099C108.867 14.8099 109.182 15.2899 109.182 16.0099V19.9999H111.042V15.6199C111.042 14.1049 110.217 13.1449 108.837 13.1449C107.892 13.1449 107.247 13.5199 106.812 13.9999ZM116.67 17.8099C116.52 18.3799 116.055 18.6499 115.425 18.6499C114.6 18.6499 114.03 18.0499 113.97 17.0449H118.44V16.4749C118.44 14.5099 117.36 13.1449 115.395 13.1449C113.52 13.1449 112.17 14.6299 112.17 16.6549C112.17 18.7249 113.475 20.1499 115.425 20.1499C117.105 20.1499 118.155 19.2349 118.395 17.8099H116.67ZM115.41 14.6599C116.175 14.6599 116.595 15.2149 116.61 15.9199H114.015C114.18 15.0949 114.69 14.6599 115.41 14.6599Z" fill="white"/>
+										<path fill-rule="evenodd" clip-rule="evenodd" d="M10.946 20.959C10.199 19.82 9.762 18.46 9.762 17C9.762 13.009 13.009 9.763 17 9.763C20.99 9.763 24.237 13.009 24.237 17C24.237 18.46 23.8 19.82 23.053 20.959H25.08C25.668 19.764 26 18.42 26 17C26 12.037 21.963 8 17 8C12.037 8 8 12.037 8 17C8 18.42 8.332 19.764 8.92 20.959H10.946Z" fill="white"/>
+										<path fill-rule="evenodd" clip-rule="evenodd" d="M16.4976 19.5241C15.8056 19.5241 15.4256 19.2281 15.4256 18.7401C15.4256 17.7251 16.6656 17.4801 18.2806 17.4801C18.2806 18.5431 17.5696 19.5241 16.4976 19.5241ZM17.1216 12.7241C15.8036 12.7241 14.2866 13.3451 13.4636 14.0021L14.2156 15.5841C14.8756 14.9811 15.9426 14.4631 16.9066 14.4631C17.8216 14.4631 18.3266 14.7701 18.3266 15.3861C18.3266 15.8001 17.9906 16.0341 17.3586 16.0921C14.9836 16.3111 13.1396 17.0521 13.1396 18.8751C13.1396 20.3201 14.1816 21.1941 15.8946 21.1941C17.0416 21.1941 17.9436 20.5561 18.4296 19.7151V20.9591H20.5666V15.7491C20.5666 13.5981 19.0706 12.7241 17.1216 12.7241Z" fill="white"/>
+										</svg>
+									</div>
+									</div>
+									{{ gateway.getPaymentFormHtml(params)|raw }}
+								{% endnamespace %}
+							</div>
+						</form>
+						
+					</div>
+				</fieldset>
+				
+		
+				<div class="flex items-center justify-between">
+					<a href="{{ url(parseEnv(baseUrl)~"/shipping") }}" class="text-sm text-gray-500">< Back to Shipping</a>
+				</div>
+				
+{% endblock %}

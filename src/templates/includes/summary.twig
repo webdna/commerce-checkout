@@ -1,0 +1,140 @@
+
+
+<!-- Order summary -->
+<section x-data="{ open: false }" aria-labelledby="summary-heading" class="relative mx-auto w-full max-w-lg flex-col bg-gray-50 lg:border-l border-gray-200 lg:flex">
+	{# <div class="absolute left-0 top-0 h-full w-[2000px] bg-gray-50"></div> #}
+	
+  <div class="relative flex lg:hidden items-center justify-between p-4">
+	<h2 id="order-heading" class="text-lg font-medium text-gray-900">Your Order</h2>
+	<button type="button" class="font-medium text-sm" aria-controls="disclosure-1" @click="open = !open" aria-expanded="false" x-bind:aria-expanded="open.toString()">
+	  <span x-show="open" x-description="Only display for open option." style="display: none;">Hide full summary</span>
+	  <span x-show="!(open)" x-description="Don't display for open option.">Show full summary</span>
+	</button>
+  </div>
+
+  <div class="lg:!block" x-show="open" style="display:none;">
+  <ul role="list" class="relative divide-y divide-gray-200 overflow-y-auto px-4 lg:mt-10">
+	{% for item in cart.lineItems %}
+		{% set variant = item.purchasable %}
+		{% set product = variant.product %}
+		{% set giftWithPurchase = item.adjustments|filter((a) => a.type == 'gift')|length %}
+		{% set thumb   = variant.mainImage | length ? variant.mainImage.one() : product.mainImage.one() %}
+	<li class="flex items-center space-x-6 py-4">
+		<div class="relative">
+			<img src="{{ thumb.url('productListingLazyLoad') }}" alt="{{ variant.title }}" class="h-20 w-20 flex-none rounded-md bg-gray-200 border border-gray-200 object-cover object-center">
+			<div class="rounded-full w-6 h-6 flex items-center justify-center bg-gray-400 text-white font-bold text-xs absolute -top-2 -right-2">{{ item.qty }}</div>
+		</div>
+		<div class="flex-1 flex gap-4 justify-between items-center">
+		  <div class="space-y-0.5 text-sm">
+			<h3 class="text-gray-900 font-medium">{{ product.title }}</h3>
+			<p class="text-gray-500">{{ variant.title }}</p>
+			{% if not giftWithPurchase %}
+			<p class="pt-1 text-xs text-gray-500">Item Number: {{ item.sku }}</p>
+			{% endif %}
+		  </div>
+		  <div class="text-sm">
+			  <p class="text-gray-900">
+				{% if not giftWithPurchase %}
+					{{ item.subtotalAsCurrency }}
+				{% else %}
+					FREE GIFT
+				{% endif %}
+			  </p>
+		  </div>
+		</div>
+	</li>
+	{% endfor %}
+
+  </ul>
+
+  <div class="relative flex-none bg-gray-50 p-4">
+	<hr class="mb-6">
+	
+	<form method="post" action="" x-data x-validate @submit="$validate.submit; if(!$validate.isComplete($el)){delete $refs.submit.dataset.processing}" >
+	{{ csrfInput() }}
+	{{ actionInput('commerce/cart/update-cart') }}
+	{{ successMessageInput('coupon updated.') }}
+	
+	  <div class="mt-1 flex space-x-4">
+		<div class="flex-1 relative rounded-md px-3 pb-1.5 pt-5 bg-white ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-brand">
+				<input type="text" name="couponCode" id="couponCode" class="peer block w-full border-0 p-0 text-gray-900 placeholder:text-transparent focus:ring-0 sm:leading-6" placeholder="Discount Code" required>
+				<label for="couponCode" class="absolute left-0 right-0 px-3 top-2 block text-xs text-gray-600 peer-placeholder-shown:text-base peer-placeholder-shown:top-3 peer-focus:text-xs peer-focus:top-2 duration-200 ease-in-out cursor-text">Discount Code</label>
+		  </div>
+		
+		{{ include("checkout/includes/inputs/button", {label:"Apply"}) }}
+	  </div>
+	  <p class="mt-1 text-sm text-red-600" id="error-msg-couponCode" hidden>{{ error ?? 'Required' }}</p>
+
+
+	  <div class="flex gap-1 mt-2">
+	  {% for code in cart.couponCodes %}
+	  	<label class="rounded-full bg-gray-200 px-2 py-0.5 text-xs tracking-wide text-gray-600 uppercase cursor-pointer" x-on:click="$root.submit()">
+			{{ input('checkbox', "couponCodes[#{code}][remove]", 1)|attr({class:'hidden'}) }}
+			{{ code }} X
+		</label>
+
+	  {% endfor %}
+	  </div>
+	</form>
+	
+	<hr class="mt-6">
+	
+	<div x-data="{ expanded: false }" class="">
+		<h2>
+			<button
+				x-on:click="expanded = !expanded"
+				:aria-expanded="expanded"
+				class="flex w-full items-center justify-between py-4"
+			>
+				<span>Military Discount</span>
+				<span x-show="expanded" aria-hidden="true" class="ml-4">&minus;</span>
+				<span x-show="!expanded" aria-hidden="true" class="ml-4">&plus;</span>
+			</button>
+		</h2>
+	
+		<div x-show="expanded" x-collapse>
+			<div class="relative pb-8">
+			<!-- ID.ME MILITARY DISCOUNT -->
+			<p class="text-sm text-gray-700">10% off military discount with <em>ID.me</em>. Includes US active duty, spouses and veterans.</p>
+			{{ craft.idme.renderVerifyButton(cart.number, '', 'popup')|raw }}
+			</div>
+		</div>
+	</div>
+	
+	<hr class="">
+
+	<dl class="relative mt-10 space-y-3 text-sm font-medium text-gray-500">
+	  <div class="flex justify-between">
+		<dt>Subtotal</dt>
+		<dd class="text-gray-900">{{ cart.itemSubtotalAsCurrency }}</dd>
+	  </div>
+	  <div class="flex justify-between">
+		<dt>Shipping</dt>
+		<dd class="text-gray-900">{{ cart.totalShippingCostAsCurrency }}</dd>
+	  </div>
+	  {% if cart.totalDiscount != 0 %}
+	  <div class="flex justify-between">
+		  <dt>Total Discount</dt>
+		  <dd class="text-gray-900">{{ cart.totalDiscountAsCurrency }}</dd>
+		</div>
+		{% endif %}
+	  <div class="flex justify-between">
+		  <dt>Taxes</dt>
+		  <dd class="text-gray-900">{{ cart.totalTaxAsCurrency }}</dd>
+		</div>
+	  <div class="hidden lg:flex items-center justify-between border-t border-gray-200 pt-6 text-gray-900">
+		<dt class="text-lg">Total</dt>
+		<dd class="text-lg">{{ cart.totalPriceAsCurrency }}</dd>
+	  </div>
+	</dl>
+	
+  </div>
+  </div>
+	
+	<hr class="relative mx-4 border-t border-gray-200">
+	<div class="relative p-4 flex lg:hidden items-center justify-between text-sm font-medium text-gray-900">
+	  <span class="text-lg">Total</span>
+	  <span class="text-lg">{{ cart.totalPriceAsCurrency }}</span>
+	</div>
+
+</section>

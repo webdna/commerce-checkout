@@ -1,0 +1,49 @@
+{% extends "checkout/_layout" %}
+
+{% set step = 'shipping' %}
+
+{% block content %}
+
+		{{ include('checkout/includes/details') }}
+			
+		<form method="post" action="" x-data x-validate @submit="$validate.submit; if(!$validate.isComplete($el)){delete $refs.submit.dataset.processing}">
+			{{ csrfInput() }}
+			{{ actionInput('commerce/cart/update-cart') }}
+			{{ redirectInput(parseEnv(baseUrl)~'/payment') }}
+			{{ successMessageInput('shipping updated.') }}
+		
+				<fieldset class="mb-8">
+					<div class="flex justify-between items-center">
+						<legend class="text-lg">Shipping Method</legend>
+					</div>
+					
+					<div class="mt-4 grid gap-3">
+						
+						  <div class="rounded-md border divide-y border-gray-300 divide-gray-300">
+							{% if not cart.availableShippingMethodOptions|length %}
+								<p class="p-3 text-sm">FedEx shipping rates available! - Call for details</p>
+							{% else %}
+							
+							{% for handle, method in cart.availableShippingMethodOptions %}
+							<label class="relative flex items-start p-3 gap-3 text-sm">
+							  <input name="shippingMethodHandle" value="{{ handle }}" type="radio" {{ (cart.shippingMethodHandle and handle == cart.shippingMethodHandle) or (not cart.shippingMethodHandle and loop.first) ? 'checked' }} class="mt-0.5 h-4 w-4 border-gray-300 text-brand focus:ring-brand">
+								<div class="flex-1 text-gray-600">{{ method.name }}</div>
+								<span class="font-medium text-gray-900">{{ method.getPrice() > 0 ? method.getPrice()|currency(cart.currency) : 'FREE' }}</span>
+							</label>
+							{% endfor %}
+							{% endif %}
+						  </div>
+
+						
+					</div>
+				</fieldset>
+		
+				<div class="flex items-center justify-between">
+					<a href="{{ url(parseEnv(baseUrl)) }}" class="text-sm text-gray-500">< Information</a>
+					
+					{{ include("checkout/includes/inputs/button", {icon:"arrow-right"}) }}
+				</div>
+				
+		</form>
+				
+{% endblock %}
