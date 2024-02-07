@@ -8,6 +8,8 @@ use yii\web\Response;
 use webdna\commerce\checkout\Checkout;
 use craft\elements\Entry;
 use craft\fields\data\ColorData;
+use webdna\commerce\checkout\assetbundles\CheckoutAsset;
+use craft\helpers\App;
 
 /**
  * Checkout controller
@@ -22,41 +24,54 @@ class CheckoutController extends Controller
      */
     public function actionIndex(): Response
     {
-        $settings = Checkout::getInstance()->settings;
-        $variables = array_merge([], $settings->toArray());
-        $variables['brandColor'] = new ColorData('#'.$variables['brandColor']);
-        $variables['policies'] = Entry::find()->id($variables['policies'])->fixedOrder(true)->all();
+        $variables = $this->getVars();
+        
+        Craft::$app->getView()->registerAssetBundle(CheckoutAsset::class);
         
         return $this->renderTemplate('checkout/index', $variables, 'cp');
     }
     
     public function actionShipping(): Response
     {
-        $settings = Checkout::getInstance()->settings;
-        $variables = array_merge([], $settings->toArray());
-        $variables['brandColor'] = new ColorData('#'.$variables['brandColor']);
-        $variables['policies'] = Entry::find()->id($variables['policies'])->fixedOrder(true)->all();
+        $variables = $this->getVars();
+        
+        Craft::$app->getView()->registerAssetBundle(CheckoutAsset::class);
         
         return $this->renderTemplate('checkout/shipping', $variables, 'cp');
     }
     
     public function actionPayment(): Response
     {
-        $settings = Checkout::getInstance()->settings;
-        $variables = array_merge([], $settings->toArray());
-        $variables['brandColor'] = new ColorData('#'.$variables['brandColor']);
-        $variables['policies'] = Entry::find()->id($variables['policies'])->fixedOrder(true)->all();
+        $variables = $this->getVars();
+        
+        Craft::$app->getView()->registerAssetBundle(CheckoutAsset::class);
         
         return $this->renderTemplate('checkout/payment', $variables, 'cp');
     }
     
     public function actionConfirmation(): Response
     {
+        $variables = $this->getVars();
+        
+        Craft::$app->getView()->registerAssetBundle(CheckoutAsset::class);
+        
+        return $this->renderTemplate('checkout/confirmation', $variables, 'cp');
+    }
+    
+    
+    private function getVars(): array
+    {
         $settings = Checkout::getInstance()->settings;
         $variables = array_merge([], $settings->toArray());
         $variables['brandColor'] = new ColorData('#'.$variables['brandColor']);
         $variables['policies'] = Entry::find()->id($variables['policies'])->fixedOrder(true)->all();
         
-        return $this->renderTemplate('checkout/confirmation', $variables, 'cp');
+        try {
+            $variables['scripts'] = Craft::$app->getView()->renderTemplate(App::parseEnv($settings['scriptTemplate']), [], 'site');
+        } catch (\Exception $e) {
+            
+        }
+        
+        return $variables;
     }
 }

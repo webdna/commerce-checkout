@@ -79,3 +79,13 @@
 	errors: settings.getErrors('policies'),
 	required: true,
 }) }}
+
+{{ forms.autosuggestField({
+	label: 'Script Template Path'|t,
+	id: 'scriptTemplate',
+	class: 'ltr',
+	name: 'scriptTemplate',
+	value: settings.scriptTemplate,
+	errors: settings.getErrors('scriptTemplate'),
+	suggestEnvVars: true,
+}) }}

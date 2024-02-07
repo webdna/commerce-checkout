@@ -23,4 +23,6 @@ class Settings extends Model
     public string $supportPhone = '';
     
     public mixed $policies = [];
+    
+    public string $scriptTemplate = '';
 }
