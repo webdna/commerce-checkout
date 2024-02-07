@@ -3,6 +3,18 @@
 {% set step = 'payment' %}
 
 {% block content %}
+
+		{% if not cart.email %}
+			{% redirect siteUrl(parseEnv(baseUrl)) %}
+		{% endif %}
+		
+		{% if not cart.shippingAddress %}
+			{% redirect siteUrl(parseEnv(baseUrl)) %}
+		{% endif %}
+		
+		{% if not cart.shippingMethodHandle %}
+			{% redirect siteUrl(parseEnv(baseUrl)~'/shipping') %}
+		{% endif %}
 		
 				{{ include('checkout/includes/details') }}
 				

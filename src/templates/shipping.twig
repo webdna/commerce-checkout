@@ -4,6 +4,10 @@
 
 {% block content %}
 
+		{% if not cart.email %}
+			{% redirect siteUrl(parseEnv(baseUrl)) %}
+		{% endif %}
+
 		{{ include('checkout/includes/details') }}
 			
 		<form method="post" action="" x-data x-validate @submit="$validate.submit; if(!$validate.isComplete($el)){delete $refs.submit.dataset.processing}">

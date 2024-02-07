@@ -1,5 +1,9 @@
 # Release Notes for Checkout
 
+## 1.0.0-beta.4
+### Added
+- security checkout throughout checkout
+
 ## 1.0.0-beta.3
 ### Added
 - include site scripts

@@ -2,6 +2,10 @@
 	{% set cart = craft.commerce.carts.cart %}
 {% endif %}
 
+{% if not cart.hasLineItems %}
+	{% redirect siteUrl(parseEnv(cartUrl)) %}
+{% endif %}
+
 <!DOCTYPE html>
 <html class="antialiased scroll-smooth h-full bg-white" lang="{{ currentSite.language }}">
 	<head>
