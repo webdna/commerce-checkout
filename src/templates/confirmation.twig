@@ -3,10 +3,10 @@
 {% set step = 'confirmation' %}
 {% set notification = notifications.orderConfirmationNotification ?? null %}
 
+{% set number = craft.app.request.getRequiredParam('number') %}
+{% set order = craft.orders().number(number).one() %}
+
 {% block content %}
-		
-		{% set number = craft.app.request.getRequiredParam('number') %}
-		{% set order = craft.orders().number(number).one() %}
 		
 		<div class="mb-10">
 			<p class="text-base font-medium text-brand">Thank you {{ order.customer.firstName }}!</p>

@@ -2,7 +2,7 @@
 	{% set cart = craft.commerce.carts.cart %}
 {% endif %}
 
-{% if not cart.hasLineItems %}
+{% if not (order ?? null) and not cart.hasLineItems %}
 	{% redirect siteUrl(parseEnv(cartUrl)) %}
 {% endif %}
 
