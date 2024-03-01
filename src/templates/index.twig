@@ -62,7 +62,7 @@
 						<p class="text-sm text-gray-600">Select the address that matches your card or payment method.</p>
 					</div>
 					
-					<div class="mt-6 rounded-md border divide-y border-gray-300 divide-gray-300" x-data="{ sameAddress: {{ cart.isBillingSameAsShipping ? 1:0 }} }" x-effect="if(sameAddress==0){$el.querySelector(')}">
+					<div class="mt-6 rounded-md border divide-y border-gray-300 divide-gray-300 overflow-hidden" x-data="{ sameAddress: {{ cart.isBillingSameAsShipping ? 1:0 }} }">
 						
 						<label class="relative flex items-start p-3 gap-3 text-sm">
 						  <input x-model="sameAddress" value="1" name="billingAddressSameAsShipping" type="radio" checked class="mt-0.5 h-4 w-4 border-gray-300 text-brand focus:ring-brand">
