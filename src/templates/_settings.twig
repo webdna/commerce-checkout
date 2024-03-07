@@ -89,3 +89,14 @@
 	errors: settings.getErrors('scriptTemplate'),
 	suggestEnvVars: true,
 }) }}
+
+{{ forms.autosuggestField({
+	label: 'Favicon Url'|t,
+	id: 'faviconUrl',
+	class: 'ltr',
+	name: 'faviconUrl',
+	value: settings.faviconUrl,
+	errors: settings.getErrors('faviconUrl'),
+	suggestEnvVars: true,
+	required: true,
+}) }}

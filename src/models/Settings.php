@@ -15,6 +15,8 @@ class Settings extends Model
     public string $cartUrl = '';
     
     public string $logoUrl = '';
+
+    public string $faviconUrl = '';
     
     public mixed $brandColor = '';
     
