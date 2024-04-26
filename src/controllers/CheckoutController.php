@@ -67,7 +67,7 @@ class CheckoutController extends Controller
         $variables['policies'] = Entry::find()->id($variables['policies'])->fixedOrder(true)->all();
         
         try {
-            $variables['scripts'] = Craft::$app->getView()->renderTemplate(App::parseEnv($settings['scriptTemplate']), [], 'site');
+            $variables['scripts'] = Craft::$app->getView()->renderTemplate(App::parseEnv($settings['scriptTemplate']), $variables, 'site');
         } catch (\Exception $e) {
             
         }
