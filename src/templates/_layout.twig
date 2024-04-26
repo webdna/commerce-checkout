@@ -109,32 +109,33 @@
 				  
 				  {% set step = step ?? 'info' %}
 				  {% set completed = true %}
+				  
 				  {% set steps = [
 				  	{
-					  handle: 'cart',
-					  label: 'Cart',
-					  url: siteUrl('shop/cart')
-					},
-					{
-					  handle: 'info',
-					  label: 'Information',
-					  url: siteUrl('checkout')
-					},
-					{
-					  handle: 'shipping',
-					  label: 'Shipping',
-					  url: siteUrl('checkout/shipping')
-					},
-					{
-					  handle: 'payment',
-					  label: 'Payment',
-					  url: siteUrl('checkout/payment')
-					},
-					{
-					  handle: 'confirmation',
-					  label: 'Confirmation',
-					  url: siteUrl('checkout/confirmation')
-					}
+						handle: 'cart',
+						label: 'Cart',
+						url: siteUrl(parseEnv(cartUrl))
+					  },
+					  {
+						handle: 'info',
+						label: 'Information',
+						url: siteUrl(parseEnv(baseUrl))
+					  },
+					  {
+						handle: 'shipping',
+						label: 'Shipping',
+						url: siteUrl(parseEnv(baseUrl)~'/shipping')
+					  },
+					  {
+						handle: 'payment',
+						label: 'Payment',
+						url: siteUrl(parseEnv(baseUrl)~'/payment')
+					  },
+					  {
+						handle: 'confirmation',
+						label: 'Confirmation',
+						url: siteUrl(parseEnv(baseUrl)~'/confirmation')
+					  }
 				  ] %}
 				  <nav aria-label="Progress" class="block pt-4 mt-6 border-t border-gray-200">
 					{% if step != 'confirmation' %}

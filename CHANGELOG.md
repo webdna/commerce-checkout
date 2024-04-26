@@ -1,5 +1,9 @@
 # Release Notes for Checkout
 
+## 1.0.0-beta.7
+### Fixed
+- urls
+
 ## 1.0.0-beta.5
 ### Fixed
 - confirmation page redirect
