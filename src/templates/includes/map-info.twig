@@ -1,4 +1,6 @@
+{% set number = craft.app.request.getRequiredParam('number') %}
+{% set order = craft.orders().number(number).one() %}
 <h6 class="text-black">Delivery Address</h6>
 <p class="">
-	{{ address.multiline() }}
+	{{ order.shippingAddress|address }}
 </p>
