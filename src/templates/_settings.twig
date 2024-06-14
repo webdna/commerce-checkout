@@ -100,3 +100,14 @@
 	suggestEnvVars: true,
 	required: true,
 }) }}
+
+{{ forms.autosuggestField({
+	label: 'Google maps API key'|t,
+	id: 'mapsApiKey',
+	class: 'ltr',
+	name: 'mapsApiKey',
+	value: settings.mapsApiKey,
+	errors: settings.getErrors('mapsApiKey'),
+	suggestEnvVars: true,
+	required: true,
+}) }}

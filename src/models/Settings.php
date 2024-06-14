@@ -27,4 +27,6 @@ class Settings extends Model
     public mixed $policies = [];
     
     public string $scriptTemplate = '';
+
+    public string $mapsApiKey = '';
 }
