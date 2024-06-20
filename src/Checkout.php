@@ -11,8 +11,10 @@ use craft\web\UrlManager;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\commerce\elements\Order;
+use craft\events\ModelEvent;
 use webdna\commerce\checkout\models\Settings;
 use webdna\commerce\checkout\behaviors\OrderBehavior;
+use GuzzleHttp\Client;
 
 /**
  * Checkout plugin
@@ -74,6 +76,23 @@ class Checkout extends Plugin
                 $event->rules["$baseUrl/confirmation"] = 'checkout/checkout/confirmation';
             }
         );
+
+        Event::on(
+            Order::class, 
+            Order::EVENT_BEFORE_SAVE, 
+            function(ModelEvent $event) {
+                $order = $event->sender;
+        
+                $request = Craft::$app->request;
+                $recaptchaResponse = $request->getParam('recaptchaResponse');
+                $recaptchaSecret = App::parseEnv('RECAPTCHA_SECRET_KEY');
+        
+                if (!$this->verifyRecaptcha($recaptchaResponse, $recaptchaSecret)) {
+                    Craft::$app->session->setError('reCAPTCHA verification failed. Please try again.');
+                    $event->isValid = false;  // Prevent saving the order
+                }
+            }
+        );
         
         Event::on(
             Order::class,
@@ -82,5 +101,19 @@ class Checkout extends Plugin
                 $event->behaviors['commerce:checkout:order'] = OrderBehavior::class;
             }
         );
+    }
+
+    private function verifyRecaptcha($token, $secret)
+    {
+        $client = new Client();
+        $response = $client->post('https://www.google.com/recaptcha/api/siteverify', [
+            'form_params' => [
+                'secret' => $secret,
+                'response' => $token,
+            ],
+        ]);
+
+        $body = json_decode((string) $response->getBody());
+        return $body->success;
     }
 }

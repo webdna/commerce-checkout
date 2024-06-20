@@ -25,7 +25,7 @@
 			{{ actionInput('commerce/cart/update-cart') }}
 			{{ redirectInput(parseEnv(baseUrl)~'/shipping') }}
 			{{ successMessageInput('Info updated.') }}
-				
+			<input type="hidden" name="recaptchaResponse" id="recaptchaResponse">
 				<fieldset class="mb-8">
 					<div class="flex items-center justify-between">
 						<legend class="text-xl">Contact</legend>
