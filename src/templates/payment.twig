@@ -25,7 +25,7 @@
 						<p class="text-sm text-gray-600">All transactions are secure and encrypted.</p>
 					</div>
 					
-					<div class="mt-4 grid gap-3">
+					<div class="grid gap-3 mt-4">
 						
 						<form id="payment-method-braintree" class="relative" method="POST">
 							{% set gateway = craft.commerce.gateways.getGatewayByHandle('braintree') %}
@@ -36,7 +36,8 @@
 								success: 'true'
 							})) }}
 							<input type="hidden" name="gatewayId" value="{{ gateway.id }}" />
-							
+							<input type="hidden" name="checkout" value="true">
+							<input type="hidden" name="recaptchaResponse" id="recaptchaResponse">
 							<div class="mb-3">
 								{% js %}
 								function processPaymentForm(e) {
@@ -68,7 +69,7 @@
 									{{ gateway.getPaymentFormHtml(params)|raw }}
 								{% endnamespace %}
 								
-								<div class="mt-4 flex justify-end">
+								<div class="flex justify-end mt-4">
 									{{ include("checkout/includes/inputs/button", {icon:"arrow-right", id:"select-payment", label:"Select Payment", data:{manual:'true', loading:'loading...'}}) }}
 									{{ include("checkout/includes/inputs/button", {icon:"arrow-right", id:"pay", label:"Place Order", classes:'hidden', data:{manual:'true', loading:'loading...'}}) }}
 								</div>
@@ -80,7 +81,7 @@
 							<div class="w-full border-t border-gray-200"></div>
 						  </div>
 						  <div class="relative flex justify-center">
-							<span class="bg-white px-4 text-sm font-medium text-gray-500">or</span>
+							<span class="px-4 text-sm font-medium text-gray-500 bg-white">or</span>
 						  </div>
 						</div>
 						
@@ -93,11 +94,11 @@
 							
 							
 							
-							<div class="my-3 flex justify-center">
+							<div class="flex justify-center my-3">
 								<small class="affirm-as-low-as" data-page-type="cart" data-amount="{{ cart.total*100 }}"></small>
 							</div>
 							
-							<div class="my-3 flex justify-center">
+							<div class="flex justify-center my-3">
 								{% set params = {
 									automatic: false,
 									button: false,

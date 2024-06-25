@@ -1,5 +1,10 @@
 # Release Notes for Checkout
 
+## 1.0.0-beta.10
+### Added
+- Google address search functionality
+- Added google recaptcha v3
+
 ## 1.0.0-beta.8
 ### Changed
 - Variables passed to script template
