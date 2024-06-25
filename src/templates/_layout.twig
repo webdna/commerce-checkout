@@ -35,6 +35,15 @@
 				})
 			})
 		</script>
+		{% set recaptchaSiteKey = getenv('RECAPTCHA_SITE_KEY') %}
+		<script src="https://www.google.com/recaptcha/api.js?render={{ recaptchaSiteKey }}"></script>
+		<script>
+			grecaptcha.ready(function() {
+				grecaptcha.execute('{{ recaptchaSiteKey }}', {action: 'checkout'}).then(function(token) {
+					document.getElementById('recaptchaResponse').value = token;
+				});
+			});
+		</script>
 		<style>
 			.bg-brand, 
 			[type=submit].bg-brand { 

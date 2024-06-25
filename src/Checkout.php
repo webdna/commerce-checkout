@@ -11,7 +11,7 @@ use craft\web\UrlManager;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\RegisterUrlRulesEvent;
 use craft\commerce\elements\Order;
-use craft\events\ModelEvent;
+use yii\base\ModelEvent;
 use webdna\commerce\checkout\models\Settings;
 use webdna\commerce\checkout\behaviors\OrderBehavior;
 use GuzzleHttp\Client;
@@ -28,7 +28,7 @@ class Checkout extends Plugin
 {
     public string $schemaVersion = '1.0.0';
     public bool $hasCpSettings = true;
-    private $recaptchaVerified = false; // Guard to prevent duplicate verification
+    private bool $recaptchaVerified = false; // Guard to prevent duplicate verification
     
     public static function config(): array
     {
@@ -85,7 +85,7 @@ class Checkout extends Plugin
         
         Event::on(
             Order::class,
-            Order::EVENT_BEFORE_SAVE,
+            Order::EVENT_BEFORE_VALIDATE,
             function (ModelEvent $event) {
                 $order = $event->sender;
                 
@@ -93,16 +93,10 @@ class Checkout extends Plugin
                 $recaptchaResponse = $request->getParam('recaptchaResponse');
                 $checkout = $request->getParam('checkout');
                 $recaptchaSecret = App::parseEnv($this->getSettings()->recaptchaSecretKey);
-                
-                // Logging details for debugging
-                static $invocationCount = 0;
-                $invocationCount++;
-                Craft::info("Invocation $invocationCount: Checkout: " . $checkout, __METHOD__);
-
+                    
                 // Verify reCAPTCHA only once
                 if (!$this->recaptchaVerified) {
                     $recaptchaValid = $this->verifyRecaptcha($recaptchaResponse, $recaptchaSecret);
-                    Craft::info("Invocation $invocationCount: reCAPTCHA Valid: " . ($recaptchaValid ? 'true' : 'false'), __METHOD__);
                     $this->recaptchaVerified = true;
 
                     // Conditional logic to validate the order
@@ -110,8 +104,6 @@ class Checkout extends Plugin
                         Craft::$app->session->setError('reCAPTCHA verification failed. Please try again.');
                         $event->isValid = false;  // Prevent saving the order
                     }
-                } else {
-                    Craft::info("Invocation $invocationCount: reCAPTCHA verification skipped due to guard", __METHOD__);
                 }
             }
         );
