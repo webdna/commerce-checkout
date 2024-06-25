@@ -111,3 +111,14 @@
 	suggestEnvVars: true,
 	required: true,
 }) }}
+
+{{ forms.autosuggestField({
+	label: 'Google recaptcha V3 secret key'|t,
+	id: 'recaptchaSecretKey',
+	class: 'ltr',
+	name: 'recaptchaSecretKey',
+	value: settings.recaptchaSecretKey,
+	errors: settings.getErrors('recaptchaSecretKey'),
+	suggestEnvVars: true,
+	required: true,
+}) }}

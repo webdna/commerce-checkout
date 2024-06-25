@@ -15,6 +15,7 @@
 			{{ actionInput('commerce/cart/update-cart') }}
 			{{ redirectInput(parseEnv(baseUrl)~'/payment') }}
 			{{ successMessageInput('shipping updated.') }}
+			<input type="hidden" name="checkout" value="true">
 			<input type="hidden" name="recaptchaResponse" id="recaptchaResponse">
 				<fieldset class="mb-8">
 					<div class="flex items-center justify-between">

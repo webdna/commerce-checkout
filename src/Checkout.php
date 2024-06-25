@@ -28,7 +28,8 @@ class Checkout extends Plugin
 {
     public string $schemaVersion = '1.0.0';
     public bool $hasCpSettings = true;
-
+    private $recaptchaVerified = false; // Guard to prevent duplicate verification
+    
     public static function config(): array
     {
         return [
@@ -37,11 +38,11 @@ class Checkout extends Plugin
             ],
         ];
     }
-
+    
     public function init(): void
     {
         parent::init();
-
+        
         // Defer most setup tasks until Craft is fully initialized
         Craft::$app->onInit(function() {
             $this->attachEventHandlers();
@@ -61,7 +62,7 @@ class Checkout extends Plugin
             'settings' => $this->getSettings(),
         ]);
     }
-
+    
     private function attachEventHandlers(): void
     {
         Event::on(
@@ -76,20 +77,41 @@ class Checkout extends Plugin
                 $event->rules["$baseUrl/confirmation"] = 'checkout/checkout/confirmation';
             }
         );
-
-        Event::on(
-            Order::class, 
-            Order::EVENT_BEFORE_SAVE, 
-            function(ModelEvent $event) {
-                $order = $event->sender;
         
+        /***
+         * This seems to be working when the recaptcha is a sucess
+         * but not on failure as it still  goes to the next screen...
+         * **/
+        
+        Event::on(
+            Order::class,
+            Order::EVENT_BEFORE_SAVE,
+            function (ModelEvent $event) {
+                $order = $event->sender;
+                
                 $request = Craft::$app->request;
                 $recaptchaResponse = $request->getParam('recaptchaResponse');
-                $recaptchaSecret = App::parseEnv('RECAPTCHA_SECRET_KEY');
-        
-                if (!$this->verifyRecaptcha($recaptchaResponse, $recaptchaSecret)) {
-                    Craft::$app->session->setError('reCAPTCHA verification failed. Please try again.');
-                    $event->isValid = false;  // Prevent saving the order
+                $checkout = $request->getParam('checkout');
+                $recaptchaSecret = App::parseEnv($this->getSettings()->recaptchaSecretKey);
+                
+                // Logging details for debugging
+                static $invocationCount = 0;
+                $invocationCount++;
+                Craft::info("Invocation $invocationCount: Checkout: " . $checkout, __METHOD__);
+
+                // Verify reCAPTCHA only once
+                if (!$this->recaptchaVerified) {
+                    $recaptchaValid = $this->verifyRecaptcha($recaptchaResponse, $recaptchaSecret);
+                    Craft::info("Invocation $invocationCount: reCAPTCHA Valid: " . ($recaptchaValid ? 'true' : 'false'), __METHOD__);
+                    $this->recaptchaVerified = true;
+
+                    // Conditional logic to validate the order
+                    if ($checkout == 'true' && !$recaptchaValid) {
+                        Craft::$app->session->setError('reCAPTCHA verification failed. Please try again.');
+                        $event->isValid = false;  // Prevent saving the order
+                    }
+                } else {
+                    Craft::info("Invocation $invocationCount: reCAPTCHA verification skipped due to guard", __METHOD__);
                 }
             }
         );
@@ -114,6 +136,16 @@ class Checkout extends Plugin
         ]);
 
         $body = json_decode((string) $response->getBody());
-        return $body->success;
+
+        Craft::info('reCAPTCHA Response Body: ' . json_encode($body), __METHOD__);
+        if (isset($body->success) && $body->success) {
+            Craft::info('reCAPTCHA Success: ' . $body->success, __METHOD__);
+            return true;
+        } else {
+            if (isset($body->{'error-codes'})) {
+                Craft::info('reCAPTCHA Error Codes: ' . implode(', ', $body->{'error-codes'}), __METHOD__);
+            }
+            return false;
+        }
     }
 }

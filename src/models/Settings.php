@@ -29,4 +29,6 @@ class Settings extends Model
     public string $scriptTemplate = '';
 
     public string $mapsApiKey = '';
+
+    public string $recaptchaSecretKey = '';
 }
