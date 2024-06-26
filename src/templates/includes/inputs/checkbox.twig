@@ -7,7 +7,7 @@
 		<input id="{{ id }}" name="{{ fieldName }}" {{ (checked ?? null) ? 'checked' }} type="checkbox" class="h-4 w-4 rounded border-gray-300 text-brand focus:ring-brand" {{ required ?? false ? 'required' }} {% for attr in (attrs ?? []) %}{{ attr|raw }}{% endfor %}>
   	</div>
   	<div class="ml-3 text-sm leading-6">
-		<label for="{{ id }}" class="text-gray-900">{{ label ?? name }}{{ required ? ' *' }}</label>
+		<label for="{{ id }}" class="text-gray-900">{{ label ?? name }}{{ required ?? false ? ' *' }}</label>
   	</div>
 	</div>
 	{% if error ?? null %}
