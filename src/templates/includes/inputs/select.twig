@@ -9,7 +9,7 @@
 			{% endfor %}
 		  </select>
 		  
-		  <label for="{{ id }}" class="pointer-events-none absolute left-0 right-0 px-3 top-2 block text-xs text-gray-600 peer-placeholder-shown:text-base peer-placeholder-shown:top-3 peer-focus:text-xs peer-focus:top-2 duration-200 ease-in-out">{{ label ?? name }}</label>
+		  <label for="{{ id }}" class="pointer-events-none absolute left-0 right-0 px-3 top-2 block text-xs text-gray-600 peer-placeholder-shown:text-base peer-placeholder-shown:top-3 peer-focus:text-xs peer-focus:top-2 duration-200 ease-in-out">{{ label ?? name }}{{ required ? ' *' }}</label>
 		  
 	</div>
 	<p class="mt-1 text-sm text-red-600" id="error-msg-{{ id }}" hidden>{{ error ?? 'Required' }}</p>

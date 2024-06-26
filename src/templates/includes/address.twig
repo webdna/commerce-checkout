@@ -4,7 +4,7 @@
 		{{ include('checkout/includes/inputs/text', {
 			name: 'firstName',
 			namespace: namespace,
-			label: 'Firstname',
+			label: 'First name',
 			value: cart[namespace].firstName ?? null,
 			required: true,
 			attrs: attrs ?? null,
@@ -13,7 +13,7 @@
 		{{ include('checkout/includes/inputs/text', {
 			name: 'lastName',
 			namespace: namespace,
-			label: 'Lastname',
+			label: 'Last name',
 			value: cart[namespace].lastName ?? null,
 			required: true,
 			attrs: attrs ?? null,
@@ -24,7 +24,7 @@
 		{{ include('checkout/includes/inputs/text', {
 			name: 'phoneNumber',
 			namespace: namespace~'[fields]',
-			label: 'phone',
+			label: 'Phone',
 			value: cart[namespace].phoneNumber ?? null,
 			required: true,
 			attrs: attrs ?? null,
