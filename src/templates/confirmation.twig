@@ -68,6 +68,7 @@
 			{{ csrfInput() }}
 			{{ actionInput('users/save-user') }}
 			{{ redirectInput('shop/customer') }}
+			<input type="hidden" name="checkout" value="true">
 			{{ input('hidden', 'email', order.email) }}
 			{{ input('hidden', 'firstName', order.shippingAddress.firstName) }}
 			{{ input('hidden', 'lastName', order.shippingAddress.lastName) }}
