@@ -89,7 +89,10 @@
 							{% set gateway = craft.commerce.gateways.getGatewayByHandle('affirm') %}
 							{{ csrfInput() }}
 							{{ actionInput('commerce/payments/pay') }}
-							{{ redirectInput(parseEnv(baseUrl)~'/confirmation') }}
+							{{ redirectInput(siteUrl(parseEnv(baseUrl)~'/confirmation', {
+								number: cart.number,
+								success: 'true'
+							})) }}
 							<input type="hidden" name="gatewayId" value="{{ gateway.id }}" />
 							
 							
